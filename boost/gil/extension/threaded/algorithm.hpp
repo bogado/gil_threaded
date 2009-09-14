@@ -54,6 +54,22 @@ namespace boost { namespace gil { namespace threaded {
 			group.join_all();
 		}
 
+		template <typename PixelType>
+		struct fill_pixels_caller
+		{
+			fill_pixels_caller(PixelType pix) : pixel(pix)
+			{}
+
+			template <typename ViewType>
+			void operator() (ViewType src)
+			{
+				boost::gil::fill_pixels(src, pixel)
+			}
+
+		private:
+			PixelType pixel;
+		};
+
 		template <typename ConverterType>
 		struct for_each_caller
 		{
@@ -103,11 +119,18 @@ namespace boost { namespace gil { namespace threaded {
 		};
 	}
 
-	template <typename SrcView, typename FunctionType>
-	void for_each_pixel(SrcView src, FunctionType func, int nt = 2)
+	template <typename ViewType, typename PixelType>
+	void fill_pixels(ViewType view, typename PixelType pixel, int nt = 2)
+	{
+		detail::fill_pixel_caller caller(pixel);
+		detail::apply_algorithm_fn(fill_caller, view, nt);
+	}
+
+	template <typename ViewType, typename FunctionType>
+	void for_each_pixel(ViewType view, FunctionType func, int nt = 2)
 	{
 		detail::for_each_caller<FunctionType> caller(func);
-		detail::apply_algorithm_fn(caller, src, nt);
+		detail::apply_algorithm_fn(caller, view, nt);
 	}
 
 	template <typename SrcView, typename DestView, typename ConverterType>
