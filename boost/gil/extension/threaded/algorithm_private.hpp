@@ -17,7 +17,7 @@
 
 namespace boost { namespace gil { namespace threaded { namespace detail {
 
-template <typename Algorithm, typename SrcView, typename DestView>
+template <typename Algorithm, typename SrcView>
 void apply_algorithm_fn(Algorithm algorithm, SrcView src, int nt)
 {
     typedef typename SrcView::point_t point_t;
