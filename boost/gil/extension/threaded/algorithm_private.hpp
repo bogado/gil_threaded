@@ -78,7 +78,7 @@ struct fill_pixels_caller
     template <typename ViewType>
     void operator() (ViewType src)
     {
-        boost::gil::fill_pixels(src, pixel)
+        boost::gil::fill_pixels(src, pixel);
     }
 
 private:

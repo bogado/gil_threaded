@@ -32,10 +32,10 @@
 namespace boost { namespace gil { namespace threaded {
 
     template <typename ViewType, typename PixelType>
-    void fill_pixels(ViewType view, typename PixelType pixel, int nt = 2)
+    void fill_pixels(ViewType view, PixelType pixel, int nt = 2)
     {
-        detail::fill_pixel_caller caller(pixel);
-        detail::apply_algorithm_fn(fill_caller, view, nt);
+        detail::fill_pixels_caller<PixelType> caller(pixel);
+        detail::apply_algorithm_fn(caller, view, nt);
     }
 
     template <typename ViewType, typename FunctionType>
