@@ -1,3 +1,26 @@
+/* 
+ *  Copyright 2009 Victor Bogado da Silva Lins <victor@tecgraf.puc-rio.br>
+ *
+ *  Use, modification and distribution are to the Boost Software License,
+ *  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+ *  http://www.boost.org/LICENSE_1_0.txt).
+ */
+
+/** \file
+ *  \brief Multithreaded versions of the algorithms defined by gil.
+ *
+ *  All algorithms defined in here work in the same manner as the 
+ *  algorithms with the same name defined by the gil library, with 
+ *  the difference that they subdivide the views into 'n' subviews and
+ *  operate on each subview simultaneosly in a separated thread.
+ *
+ *  The algorithms receive an optional parameter that indicates the 
+ *  number of threads that the user wants to use. The default is 2, 
+ *  witch the minimum number of threads that would make sense using.
+ *
+ * \author Victor Bogado da Silva Lins
+ * \date 2009
+ */
 #ifndef GIL_THREADED_ALGORITHM_HPP_INCLUDED
 #define GIL_THREADED_ALGORITHM_HPP_INCLUDED
 
