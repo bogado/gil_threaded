@@ -9,3 +9,6 @@ endif
 all: gil_threaded
 
 gil_threaded: gil_threaded.o
+
+clean:
+	rm *.o gil_threaded

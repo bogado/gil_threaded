@@ -26,6 +26,7 @@
 
 #include <boost/gil/algorithm.hpp>
 #include <boost/thread.hpp>
+#include <boost/tuple/tuple.hpp>
 
 #include "algorithm_private.hpp"
 
@@ -35,14 +36,14 @@ namespace boost { namespace gil { namespace threaded {
     void fill_pixels(ViewType view, PixelType pixel, int nt = 2)
     {
         detail::fill_pixels_caller<PixelType> caller(pixel);
-        detail::apply_algorithm_fn(caller, view, nt);
+        detail::apply_algorithm_fn(caller, make_tuple(view), nt);
     }
 
     template <typename ViewType, typename FunctionType>
     void for_each_pixel(ViewType view, FunctionType func, int nt = 2)
     {
         detail::for_each_caller<FunctionType> caller(func);
-        detail::apply_algorithm_fn(caller, view, nt);
+        detail::apply_algorithm_fn(caller, make_tuple(view), nt);
     }
 
     template <typename SrcView, typename DestView, typename ConverterType>
@@ -50,7 +51,7 @@ namespace boost { namespace gil { namespace threaded {
         SrcView src, DestView dest, ConverterType conv, int nt = 2)
     {
         detail::transform_pixels_caller<ConverterType> caller(conv);
-        detail::apply_algorithm_fn(caller, src, dest, nt);
+        detail::apply_algorithm_fn(caller, make_tuple(src, dest), nt);
     }
 
     template <typename SrcView, typename DestView, typename ConverterType>
@@ -58,7 +59,7 @@ namespace boost { namespace gil { namespace threaded {
         SrcView src, DestView dest, ConverterType conv, int nt = 2)
     {
         detail::copy_and_convert_pixels_caller<ConverterType> caller(conv);
-        detail::apply_algorithm_fn(caller, src, dest, nt);
+        detail::apply_algorithm_fn(caller, make_tuple(src, dest), nt);
     }
 
     template <typename SrcView, typename DestView>

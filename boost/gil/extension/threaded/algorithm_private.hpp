@@ -15,13 +15,29 @@
 #ifndef GIL_THREADED_ALGORITHM_PRIVATE_HPP_INCLUDED
 #define GIL_THREADED_ALGORITHM_PRIVATE_HPP_INCLUDED
 
+#include <boost/tuple/tuple.hpp>
+
 namespace boost { namespace gil { namespace threaded { namespace detail {
 
-template <typename Algorithm, typename SrcView>
-void apply_algorithm_fn(Algorithm algorithm, SrcView src, int nt)
-{
-    typedef typename SrcView::point_t point_t;
+/// Turn all views in the tuples into identical subviews.
+template <typename Point>
+inline void subimage(const tuples::null_type&, Point, Point)
+{}
 
+template <typename ViewTuple, typename Point>
+void subimage(ViewTuple& views, Point start, Point size)
+{
+    views.get_head() = subimage_view(views.get_head(), start, size);
+    subimage(views.get_tail(), start, size);
+}
+
+template <typename Algorithm, typename Viewtuple>
+void apply_algorithm_fn(Algorithm algorithm, Viewtuple views, int nt)
+{
+    typedef typename Viewtuple::head_type view_src_t;
+    typedef typename view_src_t::point_t point_t;
+
+    view_src_t src = views.get<0>();
     const point_t dim = src.dimensions();
     point_t size = dim;
     point_t start;
@@ -30,40 +46,12 @@ void apply_algorithm_fn(Algorithm algorithm, SrcView src, int nt)
     start[point_t::num_dimensions - 1] = 
         size[point_t::num_dimensions - 1];
 
-    boost::thread_group group;
+    thread_group group;
     for (int i = 0; i < nt; i++)
     {
-        group.add_thread(new boost::thread( 
-                    algorithm, 
-                    boost::gil::subimage_view(
-                        src, start * i, size)));
-    }
-
-    group.join_all();
-}
-
-template <typename Algorithm, typename SrcView, typename DestView>
-void apply_algorithm_fn(Algorithm algorithm,
-    SrcView src, DestView dst, int nt)
-{
-    typedef typename SrcView::point_t point_t;
-
-    const point_t dim = src.dimensions();
-    const int last_dimension = point_t::num_dimensions - 1;
-    point_t size = dim;
-    // hopefully default constructor initiates on the origin
-    point_t start; 
-
-    size[last_dimension] /= nt;
-    start[last_dimension] = size[last_dimension];
-
-    boost::thread_group group;
-    for (int i = 0; i < nt; i++)
-    {
-        group.add_thread( new boost::thread( 
-            algorithm, 
-            boost::gil::subimage_view(src, start * i, size),
-            boost::gil::subimage_view(dst, start * i, size)));
+        Viewtuple subviews = views;
+        subimage(subviews, start * i, size);
+        group.add_thread(new thread(algorithm, subviews));
     }
 
     group.join_all();
@@ -76,9 +64,9 @@ struct fill_pixels_caller
     {}
 
     template <typename ViewType>
-    void operator() (ViewType src)
+    void operator() (tuple<ViewType> views)
     {
-        boost::gil::fill_pixels(src, pixel);
+        boost::gil::fill_pixels(get<0>(views), pixel);
     }
 
 private:
@@ -92,9 +80,9 @@ struct for_each_caller
     {}
 
     template <typename SrcView>
-    void operator() (SrcView src)
+    void operator() (tuple<SrcView> views)
     {
-        boost::gil::for_each_pixel(src, converter);
+        boost::gil::for_each_pixel(get<0>(views), converter);
     }
 
 private:
@@ -108,9 +96,9 @@ struct transform_pixels_caller
     {}
 
     template <typename SrcView, typename DestView>
-    void operator() (SrcView src, DestView dest)
+    void operator() (tuple<SrcView, DestView> views)
     {
-        boost::gil::transform_pixels(src, dest, converter);
+        boost::gil::transform_pixels(get<0>(views), get<1>(views), converter);
     }
 
 private:
@@ -125,9 +113,9 @@ struct copy_and_convert_pixels_caller
     {}
 
     template <typename SrcView, typename DestView>
-    void operator() (SrcView src, DestView dest)
+    void operator() (tuple<SrcView, DestView> views)
     {
-        boost::gil::copy_and_convert_pixels(src, dest, converter);
+        boost::gil::copy_and_convert_pixels(get<0>(views), get<1>(views), converter);
     }
 
 private:
