@@ -92,3 +92,31 @@ BOOST_AUTO_TEST_CASE(transform_pixels)
 
 	BOOST_CHECK(std::equal(v1.begin(), v1.end(), v2.begin()));
 }
+
+void red(const gil::rgb8_pixel_t& src, gil::gray8_pixel_t& dst)
+{
+	dst = gil::at_c<0>(src);
+}
+
+BOOST_AUTO_TEST_CASE(copy_and_convert_pixels)
+{
+	gil::rgb8_image_t image1 = load_image();
+	gil::rgb8_view_t orig    = gil::view(image1);
+
+	gil::gray8_image_t dest1(orig.dimensions());
+	gil::gray8_image_t dest2(orig.dimensions());
+
+	gil::gray8_view_t v1 = gil::view(dest1);
+	gil::gray8_view_t v2 = gil::view(dest2);
+
+	gil::copy_and_convert_pixels          (orig, v1);
+	gil::threaded::copy_and_convert_pixels(orig, v2);
+
+	BOOST_CHECK(std::equal(v1.begin(), v1.end(), v2.begin()));
+
+	gil::copy_and_convert_pixels          (orig, v1, red);
+	BOOST_WARN(std::equal(v1.begin(), v1.end(), v2.begin()));
+	gil::threaded::copy_and_convert_pixels(orig, v2, red);
+
+	BOOST_CHECK(std::equal(v1.begin(), v1.end(), v2.begin()));
+}
