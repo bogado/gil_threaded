@@ -101,6 +101,13 @@ struct transform_pixels_caller
         boost::gil::transform_pixels(get<0>(views), get<1>(views), converter);
     }
 
+    template <typename Src1View, typename Src2View, typename DestView>
+    void operator() (tuple<Src1View, Src2View, DestView> views)
+    {
+        boost::gil::transform_pixels(
+            get<0>(views), get<1>(views), get<2>(views), converter);
+    }
+
 private:
     ConverterType converter;
 };

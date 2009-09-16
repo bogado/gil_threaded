@@ -76,6 +76,14 @@ gil::rgb8_pixel_t invert_pixel(const gil::rgb8_pixel_t& orig)
 			gil::at_c<2>(orig) ^ 0xff);
 }
 
+gil::rgb8_pixel_t op(const gil::rgb8_pixel_t& p1, const gil::rgb8_pixel_t& p2)
+{
+	return  gil::rgb8_pixel_t(
+			(gil::at_c<0>(p1) << 1) + (gil::at_c<0>(p2) >> 1),
+			(gil::at_c<1>(p1) << 1) + (gil::at_c<1>(p2) >> 1),
+			(gil::at_c<2>(p1) << 1) + (gil::at_c<2>(p2) >> 1));
+}
+
 BOOST_AUTO_TEST_CASE(transform_pixels)
 {
 	gil::rgb8_image_t image1 = load_image();
@@ -91,6 +99,15 @@ BOOST_AUTO_TEST_CASE(transform_pixels)
 	gil::threaded::transform_pixels(orig, v2, &invert_pixel);
 
 	BOOST_CHECK(std::equal(v1.begin(), v1.end(), v2.begin()));
+
+	gil::rgb8_image_t dest3(orig.dimensions());
+
+	gil::rgb8_view_t v3 = gil::view(dest3);
+
+	gil::transform_pixels          (orig, v1, v2, &op);
+	gil::threaded::transform_pixels(orig, v1, v3, &op);
+
+	BOOST_CHECK(std::equal(v2.begin(), v2.end(), v3.begin()));
 }
 
 void red(const gil::rgb8_pixel_t& src, gil::gray8_pixel_t& dst)

@@ -54,6 +54,16 @@ namespace boost { namespace gil { namespace threaded {
         detail::apply_algorithm_fn(caller, make_tuple(src, dest), nt);
     }
 
+    template <typename Src1View, typename Src2View, typename DestView,
+         typename ConverterType>
+    void transform_pixels(
+        Src1View src1, Src2View src2, DestView dest, ConverterType conv,
+        int nt = 2)
+    {
+        detail::transform_pixels_caller<ConverterType> caller(conv);
+        detail::apply_algorithm_fn(caller, make_tuple(src1, src2, dest), nt);
+    }
+
     template <typename SrcView, typename DestView, typename ConverterType>
     void copy_and_convert_pixels(
         SrcView src, DestView dest, ConverterType conv, int nt = 2)
