@@ -1,0 +1,6 @@
+This is an extension to the adobe gil library to use threads when using algorithm that operates on images. 
+
+This simply works by subdividing all the views involved in the operation in smaller views and starting a separated thread for each subdivided set. All threads started by the algorithms are consequently joined to the started threads after they are done, when this happen all the views should be in the same state as if the single threaded version was used.
+
+One important caveat is that the algorithm applied should be able to work seamless on subsets and yield the same results, mathematically speaking alg(x + y) = alg(x) + alg(y), otherwise the multi-threaded version will not work correctly. One common case in witch this is not true is with convolutions that treat the border pixels differently. This limitation may be fixable with other work division strategies.
+
