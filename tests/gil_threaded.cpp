@@ -137,4 +137,35 @@ BOOST_AUTO_TEST_CASE(copy_and_convert_pixels)
 
     BOOST_CHECK(std::equal(v1.begin(), v1.end(), v2.begin()));
 }
+
+struct generator
+{
+    generator() : start(0)
+    {}
+
+    gil::rgb8_pixel_t operator() ()
+    {
+        gil::rgb8_pixel_t ret = gil::rgb8_pixel_t(start, 0, 255 - start);
+        start++;
+        return ret;
+    }
+
+private:
+    unsigned char start;
+};
+
+BOOST_AUTO_TEST_CASE(generate)
+{
+    gil::gray8_image_t dest1(256,256);
+    gil::gray8_image_t dest2(dest1.dimensions());
+
+    gil::gray8_view_t v1 = gil::view(dest1);
+    gil::gray8_view_t v2 = gil::view(dest2);
+
+    gil::generate_pixels          (v1, generator());
+    gil::threaded::generate_pixels(v2, generator());
+
+    BOOST_CHECK(std::equal(v1.begin(), v1.end(), v2.begin()));
+}
+
 // vi:expandtab:ts=4 sw=4

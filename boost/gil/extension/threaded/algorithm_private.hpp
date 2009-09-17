@@ -129,6 +129,23 @@ private:
     ConverterType converter;
 };
 
+template <typename GenerateFunction>
+struct generate_pixels_caller
+{
+    generate_pixels_caller(GenerateFunction gen) :
+        generate(gen)
+    {}
+
+    template <typename DestView>
+    void operator() (tuple<DestView> views)
+    {
+        boost::gil::generate_pixels(get<0>(views), generate);
+    }
+
+private:
+    GenerateFunction generate;
+};
+
 } } } }
 
 #endif

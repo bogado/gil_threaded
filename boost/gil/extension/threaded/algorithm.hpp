@@ -83,6 +83,13 @@ namespace boost { namespace gil { namespace threaded {
                 (src, dest, boost::gil::default_color_converter());
     }
 
+    template <typename DestView, typename GenerateFunction>
+    void generate_pixels(DestView dest, GenerateFunction gen, int nt = 2)
+    {
+        detail::generate_pixels_caller<GenerateFunction> caller(gen);
+        detail::apply_algorithm_fn(caller, make_tuple(dest), nt);
+    }
+
 } } }
 
 #endif
