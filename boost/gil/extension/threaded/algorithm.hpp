@@ -42,7 +42,7 @@ namespace boost { namespace gil { namespace threaded {
     template <typename ViewType, typename FunctionType>
     void for_each_pixel(ViewType view, FunctionType func, int nt = 2)
     {
-        detail::for_each_caller<FunctionType> caller(func);
+        detail::for_each_pixel_caller<FunctionType> caller(func);
         detail::apply_algorithm_fn(caller, make_tuple(view), nt);
     }
 

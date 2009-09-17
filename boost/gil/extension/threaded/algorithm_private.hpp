@@ -74,9 +74,9 @@ private:
 };
 
 template <typename ConverterType>
-struct for_each_caller
+struct for_each_pixel_caller
 {
-    for_each_caller(ConverterType conv) : converter(conv)
+    for_each_pixel_caller(ConverterType conv) : converter(conv)
     {}
 
     template <typename SrcView>
